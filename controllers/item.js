@@ -1,10 +1,10 @@
-const Item = require('../models/clothingItem'); 
+const Item = require('../models/clothingItem');
 const { OK, CREATED, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
 
 const getItems = (req, res) => {
   Item.find({})
-  .then((items) => res.status(OK).send(items))
-  .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' }));
+    .then((items) => res.status(OK).send(items))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' }));
 };
 
 const createItem = (req, res) => {
@@ -22,32 +22,47 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { id } = req.params;
+
   Item.findByIdAndDelete(id)
     .then((doc) => {
-      if (!doc) return res.status(NOT_FOUND).send({ message: 'Item not found' });
+      if (!doc) {
+        return res.status(NOT_FOUND).send({ message: 'Item not found' });
+      }
       return res.send({ message: 'Deleted' });
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' });
+    });
 };
 
 const likeItem = (req, res) => {
   const { itemId } = req.params;
+
   Item.findByIdAndUpdate(
     itemId,
-    { $addToSet: { likes: req.user._id } }, 
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .then((item) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: 'Item not found' });
       }
-      res.send(item);
+      return res.send(item);
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' });
+    });
 };
 
 const unlikeItem = (req, res) => {
   const { itemId } = req.params;
+
   Item.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
@@ -55,10 +70,16 @@ const unlikeItem = (req, res) => {
   )
     .then((item) => {
       if (!item) {
-        return res.status(404).send({ message: "Item not found" });
+        return res.status(NOT_FOUND).send({ message: 'Item not found' });
       }
-      res.send(item);
+      return res.send(item);
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' });
+    });
 };
+
 module.exports = { getItems, createItem, deleteItem, likeItem, unlikeItem };

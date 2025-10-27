@@ -33,7 +33,7 @@ const getUser = (req, res) => {
       }
       return res.send(user);
     })
-    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send({ message: 'server error' }));
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'server error' }));
 };
 
 module.exports = { getUsers, getUser, createUser };
