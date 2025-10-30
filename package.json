@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Meya1111/se_project_express#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "mongoose": "^8.19.2",
     "validator": "^13.15.15"

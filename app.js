@@ -2,6 +2,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
+const cors = require("cors");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -18,14 +19,8 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "672abcf3e8b7d7c7f10e9c99",
-  };
-  next();
-});
-
 app.use(express.json());
+app.use(cors());
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {

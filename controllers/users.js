@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
+
 const {
   OK,
   CREATED,
@@ -11,7 +14,7 @@ const bcrypt = require("bcryptjs");
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  
+
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
@@ -36,6 +39,20 @@ const createUser = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      return res.status(OK).send({ token });
+    })
+    .catch(() => {
+      return res.status(401).send({ message: "Incorrect email or password" });
+    });
+};
+
 const getUsers = (req, res) =>
   User.find({})
     .then((users) => res.status(OK).send(users))
@@ -43,12 +60,9 @@ const getUsers = (req, res) =>
       res.status(INTERNAL_SERVER_ERROR).send({ message: "Server error" })
     );
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
 
-  if (!mongoose.isValidObjectId(userId)) {
-    return res.status(BAD_REQUEST).send({ message: "Invalid user ID format" });
-  }
   return User.findById(userId)
     .then((user) => {
       if (!user) {
@@ -61,4 +75,29 @@ const getUser = (req, res) => {
     );
 };
 
-module.exports = { getUsers, getUser, createUser };
+const updateProfile = (req, res) => {
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+
+  return User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Server error" });
+    });
+};
+
+module.exports = { getUsers, getCurrentUser, updateProfile, createUser, login };
