@@ -1,23 +1,47 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
-const { OK, CREATED, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
+const {
+  OK,
+  CREATED,
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
+} = require("../utils/constants");
+const bcrypt = require("bcryptjs");
 
 const createUser = (req, res) => {
-  const { name, avatar } = req.body;
-
-  return User.create({ name, avatar })
-    .then((user) => res.status(CREATED).send(user))
+  const { name, avatar, email, password } = req.body;
+  
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
+    .then((user) =>
+      res.status(CREATED).send({
+        _id: user._id,
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+      })
+    )
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: 'Invalid data' });
+      if (err.code === 11000) {
+        return res.status(409).send({ message: "Email already exists" });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' });
+      if (err.name === "ValidationError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Server error" });
     });
 };
 
-const getUsers = (req, res) => User.find({})
+const getUsers = (req, res) =>
+  User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Server error' }));
+    .catch(() =>
+      res.status(INTERNAL_SERVER_ERROR).send({ message: "Server error" })
+    );
 
 const getUser = (req, res) => {
   const { userId } = req.params;
@@ -25,7 +49,6 @@ const getUser = (req, res) => {
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(BAD_REQUEST).send({ message: "Invalid user ID format" });
   }
-
   return User.findById(userId)
     .then((user) => {
       if (!user) {
@@ -33,7 +56,9 @@ const getUser = (req, res) => {
       }
       return res.send(user);
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'server error' }));
+    .catch(() =>
+      res.status(INTERNAL_SERVER_ERROR).send({ message: "Server error" })
+    );
 };
 
 module.exports = { getUsers, getUser, createUser };
