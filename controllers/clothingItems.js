@@ -9,7 +9,7 @@ const {
 } = require("../utils/constants");
 
 const getItems = (req, res) => {
-  Item.find({})
+  clothingItem.find({})
     .then((items) => res.status(OK).send(items))
     .catch(() =>
       res.status(INTERNAL_SERVER_ERROR).send({ message: "Server error" })
@@ -19,7 +19,7 @@ const getItems = (req, res) => {
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  Item.create({ name, weather, imageUrl, owner: req.user._id })
+  clothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(CREATED).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {

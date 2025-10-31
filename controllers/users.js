@@ -9,6 +9,8 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  CONFLICT,
+  UNAUTHORIZED,
 } = require("../utils/constants");
 const bcrypt = require("bcryptjs");
 
@@ -28,7 +30,7 @@ const createUser = (req, res) => {
     )
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(409).send({ message: "Email already exists" });
+        return res.status(CONFLICT).send({ message: "Email already exists" });
       }
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid data" });
@@ -48,8 +50,15 @@ const login = (req, res) => {
       });
       return res.status(OK).send({ token });
     })
-    .catch(() => {
-      return res.status(401).send({ message: "Incorrect email or password" });
+    .catch((err) => {
+      if (err.name === "UnauthorizedError" || err.statusCode === 401) {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Server error" });
     });
 };
 

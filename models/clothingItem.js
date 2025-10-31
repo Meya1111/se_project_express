@@ -17,8 +17,12 @@ const clothingItemSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (url) => validator.isURL(url),
-      message: "Invalid URL",
+      validator: (v) =>
+        validator.isURL(v, {
+          protocols: ["http", "https"],
+          require_protocol: true,
+        }),
+      message: "Invalid image URL",
     },
   },
   owner: {
@@ -33,10 +37,6 @@ const clothingItemSchema = new mongoose.Schema({
     },
   ],
   default: [],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
 });
 
 module.exports = mongoose.model("clothingItem", clothingItemSchema);

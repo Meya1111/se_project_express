@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const validator = require('validator');
 
 const urlRegex =
   /^(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
@@ -15,16 +16,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (v) => urlRegex.test(v),
-      message: "Invalid avatar URL",
+      validator: (v) => validator.isURL(v, { protocols: ['http', 'https'], require_protocol: true }),
+      message: 'Invalid avatar URL',
     },
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    trim: true,
     lowercase: true,
+    validate: {
+      validator: validator.isEmail,
+      message: 'Invalid email',
+    },
   },
   password: {
     type: String,
