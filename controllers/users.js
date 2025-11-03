@@ -13,7 +13,6 @@ const {
   CONFLICT,
   UNAUTHORIZED,
 } = require("../utils/constants");
-const bcrypt = require("bcryptjs");
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
