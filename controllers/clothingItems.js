@@ -35,7 +35,7 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;
 
-  return Item.findById(itemId)
+  return clothingItem.findById(itemId)
     .then((item) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
@@ -62,7 +62,7 @@ const deleteItem = (req, res) => {
 const likeItem = (req, res) => {
   const { itemId } = req.params;
 
-  Item.findByIdAndUpdate(
+  clothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
@@ -86,7 +86,7 @@ const likeItem = (req, res) => {
 const unlikeItem = (req, res) => {
   const { itemId } = req.params;
 
-  Item.findByIdAndUpdate(
+  clothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true }

@@ -1,9 +1,8 @@
-const mongoose = require("mongoose");
-const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../utils/config");
 const bcrypt = require('bcryptjs');
 
+const User = require("../models/user");
+const { JWT_SECRET } = require("../utils/config");
 const {
   OK,
   CREATED,
