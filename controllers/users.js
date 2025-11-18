@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
@@ -19,14 +19,14 @@ const createUser = (req, res) => {
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
-    .then((user) =>
+    .then((user) => {
       res.status(CREATED).send({
         _id: user._id,
         name: user.name,
         avatar: user.avatar,
         email: user.email,
-      })
-    )
+      });
+    })
     .catch((err) => {
       if (err.code === 11000) {
         return res.status(CONFLICT).send({ message: "Email already exists" });
@@ -42,19 +42,32 @@ const createUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+
+  return User.findOne({ email })
+    .select("+password")
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
-      });
-      return res.status(OK).send({ token });
-    })
-    .catch((err) => {
-      if (err.name === "UnauthorizedError" || err.statusCode === 401) {
+      if (!user) {
         return res
           .status(UNAUTHORIZED)
           .send({ message: "Incorrect email or password" });
       }
+
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          return res
+            .status(UNAUTHORIZED)
+            .send({ message: "Incorrect email or password" });
+        }
+
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
+
+        return res.status(OK).send({ token });
+      });
+    })
+    .catch((err) => {
+      console.error(err);
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Server error" });
