@@ -1,15 +1,20 @@
-const router = require('express').Router();
+const router = require("express").Router();
 
 const {
- createItem,
- deleteItem,
- likeItem,
- unlikeItem,   
-} = require('../controllers/clothingItems');
+  createItem,
+  deleteItem,
+  likeItem,
+  unlikeItem,
+} = require("../controllers/clothingItems");
 
-router.post('/', createItem);
-router.delete('/:itemId', deleteItem);
+const {
+  validateCreateItem,
+  validateItemIdParam,
+} = require("../middlewares/validation");
+
+router.post("/", validateCreateItem, createItem);
+router.delete("/:itemId", validateItemIdParam, deleteItem);
 router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", unlikeItem);
+router.put("/:itemId/likes", validateItemIdParam, likeItem);
 
 module.exports = router;
