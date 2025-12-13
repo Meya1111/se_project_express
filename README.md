@@ -25,3 +25,17 @@ Before committing your code, make sure you edit the file `sprint.txt` in the roo
  
  Check out [this video] https://drive.google.com/file/d/1yOnqQ_8j5UR4J0BnaYM1kII8DpiO9ErP/view?usp=sharing , where I describe my 
  project and some challenges I faced while building it.
+
+ ## Deployed Project Information
+
+**Frontend domain:**  
+https://wtwrrproject.mooo.com
+
+**Backend API domain:**  
+https://api.wtwrr.mooo.com
+
+**Frontend GitHub repository:**  
+https://github.com/Meya1111/se_project_react.git
+
+**Project pitch video:**  
+https://www.loom.com/share/db8d8c85703744bc940db0daa940f71b
