@@ -9,6 +9,8 @@ const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
+const errorHandler = require('./middlewares/errorHandler');
+
 const app = express();
 const { PORT = 3001 } = process.env;
 
@@ -39,16 +41,9 @@ app.use("/", mainRouter);
 
 app.use(errorLogger);
 
+app.use(errorHandler);
+
 app.use(errors());
-
-app.use((err, req, res) => {
-  console.error(err);
-
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    message: statusCode === 500 ? "An error occurred on the server" : message,
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);

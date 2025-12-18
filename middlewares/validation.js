@@ -2,8 +2,8 @@ const { celebrate, Joi } = require("celebrate");
 
 const validateSignup = celebrate({
   body: Joi.object({
-    name: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    name: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().uri(),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),

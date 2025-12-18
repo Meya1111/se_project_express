@@ -14,7 +14,6 @@ const {
 router.post("/", validateCreateItem, createItem);
 router.delete("/:itemId", validateItemIdParam, deleteItem);
 router.delete("/:itemId/likes", validateItemIdParam, unlikeItem);
-router.put("/:itemId/likes", likeItem);
 router.put("/:itemId/likes", validateItemIdParam, likeItem);
 
 module.exports = router;
