@@ -1,7 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-
 const { OK, CREATED } = require("../utils/constants");
-
 const BadRequestError = require("../errors/bad-request-err");
 const NotFoundError = require("../errors/not-found-err");
 const UnauthorizedError = require('../errors/unauthorized-err');

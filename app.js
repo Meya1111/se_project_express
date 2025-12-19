@@ -8,7 +8,6 @@ const { errors } = require("celebrate");
 
 const mainRouter = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -41,9 +40,9 @@ app.use("/", mainRouter);
 
 app.use(errorLogger);
 
-app.use(errorHandler);
-
 app.use(errors());
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
